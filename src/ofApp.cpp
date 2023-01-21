@@ -5,6 +5,7 @@ void ofApp::setup(){
     ofSetFrameRate(60);
     ofSetVerticalSync(true);
     ofBackground(0, 0, 0);
+    ofEnableAlphaBlending();
 
     //setting Box2d
     box2d.init();//reset box2d world
@@ -29,7 +30,14 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    //when type a "c" key, add a circle
+    if (key == 'c') {
+        float r = ofRandom(5,20); //setting radius
+        auto c = make_shared<CustomCircle>();
+        c->setPhysics(1.0, 0.8, 0.5);//physic parameter
+        c->setup(box2d.getWorld(), mouseX, mouseY, r);
+        circles.push_back(c);
+    }
 }
 
 //--------------------------------------------------------------
@@ -50,11 +58,11 @@ void ofApp::mouseDragged(int x, int y, int button){
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
     //when clicked screen, add a circle
-    float r = ofRandom(10,40);
-    auto circle = make_shared<ofxBox2dCircle>();
-    circle->setPhysics(1.0, 0.8, 0.5);
-    circle->setup(box2d.getWorld(), mouseX, mouseY, r);
-    circles.push_back(circle);
+//    float r = ofRandom(10,40);
+//    auto circle = make_shared<ofxBox2dCircle>();
+//    circle->setPhysics(1.0, 0.8, 0.5);
+//    circle->setup(box2d.getWorld(), mouseX, mouseY, r);
+//    circles.push_back(circle);
 }
 
 //--------------------------------------------------------------
