@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxBox2d.h" //load the ofxBox2d's addons
+#include "CustomCircle.h"
 
 class ofApp : public ofBaseApp{
 
@@ -24,5 +25,5 @@ class ofApp : public ofBaseApp{
 
 
     ofxBox2d box2d;//instance of ofxBox2d
-    vector <shared_ptr<ofxBox2dCircle>> circles;
+    vector <shared_ptr<CustomCircle>> circles;
 };
