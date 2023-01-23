@@ -25,5 +25,7 @@ class ofApp : public ofBaseApp{
 
 
     ofxBox2d box2d;//instance of ofxBox2d
-    vector <shared_ptr<CustomCircle>> circles;
+    vector <shared_ptr<CustomCircle> > circles;
+
+    vector <shared_ptr<ofxBox2dRect> > rects;
 };
