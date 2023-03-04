@@ -24,8 +24,8 @@ void ofApp::setup(){
     static const int NUM = 1000;
     for (int i = 0; i < NUM; i++){
         auto circle = make_shared<CustomCircle>();
-        circle -> setPhysics(1.0, 0.8, 0.0);
-        circle -> setup(box2d.getWorld(), ofRandom(colorImg.width), ofRandom(colorImg.height), 3);
+        circle->setPhysics(1.0, 0.8, 0.0);
+        circle->setup(box2d.getWorld(), ofRandom(colorImg.width), ofRandom(colorImg.height), 3);
         circles.push_back(circle);
     }
 }
@@ -59,7 +59,7 @@ void ofApp::update(){
 
     // reset a circle
     for (int i = 0; i < contourCircles.size(); i++) {
-        contourCircles[i] -> destroy();
+        contourCircles[i]->destroy();
     }
     contourCircles.clear();
     //analyse blobs
@@ -88,7 +88,7 @@ void ofApp::draw(){
     ofNoFill();
     ofSetColor(255, 0, 0);
     for(int i = 0; i < contourCircles.size(); i++) {
-        contourCircles[i] -> draw();
+        contourCircles[i]->draw();
     }
 //    draw a Custom circle
     for (int i = 0; i < circles.size(); i++) {
