@@ -2,66 +2,115 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    ofSetFrameRate(60);
-    ofSetVerticalSync(true);
     ofBackground(0, 0, 0);
-    ofEnableAlphaBlending();
+    ofSetFrameRate(60);
+
+    vidGrabber.initGrabber(320, 240);
+    colorImg.allocate(320, 240);
+    grayImage.allocate(320, 240);
+    grayBg.allocate(320, 240);
+    grayDiff.allocate(320, 240);
+    bLearnBakground = true;
+    threshold = 100;
 
     //setting Box2d
     box2d.init();//reset box2d world
-    box2d.setGravity(0, 5);//setting gravity
-    box2d.createBounds(0,0, ofGetWidth(), ofGetHeight()); //setting wall
+    box2d.setGravity(0, 1);//setting gravity
+    box2d.createBounds(0,0, colorImg.width, colorImg.height); //setting wall
     box2d.setFPS(30);//appear 30fps
+    box2d.checkBounds(true);
 
-    //add an obstacle
-    for (int i = 0; i < 100; i++){
-        auto r = make_shared<ofxBox2dRect>();
-        float w = 2;
-        float h = 2;
-        float x = ofRandom(50,ofGetWidth() - 50);
-        float y = ofRandom(50, ofGetHeight() - 50);
-        r -> setup(box2d.getWorld(), x, y, w,h);
-        rects.push_back(r);
+    //position 1000 circle
+    static const int NUM = 1000;
+    for (int i = 0; i < NUM; i++){
+        auto circle = make_shared<CustomCircle>();
+        circle -> setPhysics(1.0, 0.8, 0.0);
+        circle -> setup(box2d.getWorld(), ofRandom(colorImg.width), ofRandom(colorImg.height), 3);
+        circles.push_back(circle);
     }
-
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    //    update box2d
     box2d.update();
+
+    //    check a new frame
+    bool bNewFrame = false;
+
+    //    check a last frame
+    vidGrabber.update();
+    bNewFrame = vidGrabber.isFrameNew();
+    //    if sentence for new frame
+    if (bNewFrame) {
+        colorImg.setFromPixels(vidGrabber.getPixels());
+
+        grayImage = colorImg;
+
+        if(bNewFrame == true) {
+            grayBg = grayImage;
+            bLearnBakground = false;
+        }
+    }
+
+    grayDiff.absDiff(grayBg, grayImage);
+    grayDiff.threshold(threshold);
+    countourFinder.findContours(grayDiff, 20, (340 * 240) / 3, 10, false);
+
+    // reset a circle
+    for (int i = 0; i < contourCircles.size(); i++) {
+        contourCircles[i] -> destroy();
+    }
+    contourCircles.clear();
+    //analyse blobs
+    for (int i = 0; i < countourFinder.nBlobs; i++) {
+        for (int j = 0; j < countourFinder.blobs[i].pts.size(); j += 4) {
+            glm::vec2 pos = countourFinder.blobs[i].pts[j];
+            auto circle = make_shared<ofxBox2dCircle>();
+            circle->setup(box2d.getWorld(), pos.x, pos.y, 4);
+            contourCircles.push_back(circle);
+        }
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    for(int i = 0; i < circles.size(); i++){
-        ofFill();//fill
-        ofSetColor(153, 153, 255);//setting color
-        circles[i]->draw();//draw all of circles
-    }
+    float ratioX = ofGetWidth() / 320;
+    float ratioY = ofGetHeight() / 240;
 
-    for (int i = 0; i < rects.size(); i++) {
-        ofSetColor(255, 63, 63);
-        rects[i] -> draw();
+    ofPushMatrix();
+
+    ofScale((float)ofGetWidth() / (float)grayDiff.width, (float)ofGetHeight() / (float)grayDiff.height);
+    ofSetColor(255, 255, 255);
+    colorImg.draw(0, 0);
+    countourFinder.draw();
+//draw a circle's border
+    ofNoFill();
+    ofSetColor(255, 0, 0);
+    for(int i = 0; i < contourCircles.size(); i++) {
+        contourCircles[i] -> draw();
     }
+//    draw a Custom circle
+    for (int i = 0; i < circles.size(); i++) {
+        circles[i]->draw();
+    }
+    ofPopMatrix();
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-    //when type a "c" key, add a circle
-    if (key == 'c') {
-        float r = ofRandom(5,20); //setting radius
-        auto c = make_shared<CustomCircle>();
-        c->setPhysics(1.0, 0.8, 0.5);//physic parameter
-        c->setup(box2d.getWorld(), mouseX, mouseY, r);
-        circles.push_back(c);
-    }
-
-    //when type a "r" key, delete all of circles
-    if (key == 'r') {
-        for (int i = 0; i < circles.size(); i++){
-            circles[i] -> destroy();
-        }
-        circles.clear();
+    switch (key) {
+        case' ':
+            bLearnBakground = true;
+            break;
+        case '+':
+            threshold++;
+            if (threshold > 255) threshold = 255;
+            break;
+        case '-':
+            threshold--;
+            if (threshold < 0) threshold = 0;
+            break;
     }
 }
 

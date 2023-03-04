@@ -12,9 +12,9 @@ void CustomCircle::draw() {
     ofPushMatrix();//change a coordinate
     ofTranslate(getPosition().x, getPosition().y);//move a coordinate to position
     ofFill();
-    ofSetColor(255, 151, 255,100);//circle's color 1 setting
-    ofDrawCircle(0, 0, radius);//draw a circle's 1
-    ofSetColor(255, 153, 255,200);//circle's 2 color setting
-    ofDrawCircle(0, 0, radius * 0.7);
+    ofSetColor(31, 127, 255,100);//circle's color 1 setting
+    ofCircle(0, 0, radius);//draw a circle's 1
+    ofSetColor(31, 127, 255,200);//circle's 2 color setting
+    ofCircle(0, 0, radius * 0.7);
     ofPopMatrix();//back to coordinate
 }
